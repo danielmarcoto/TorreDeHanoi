@@ -3,14 +3,13 @@ package br.com.marribe.torredehani.draws;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.util.Log;
 
 import java.util.Stack;
 
 /**
  * Created by danielmarcoto on 20/10/15.
  */
-public class Rod extends Drawable {
+public class Rod extends GameObject {
 
     private static final int DEFAULT_COLOR = Color.parseColor("#086788"); // Azul escuro
     private static final int SELECTED_COLOR = Color.parseColor("#DD1C1A"); // Vermelho
@@ -54,7 +53,7 @@ public class Rod extends Drawable {
 
         canvas.drawRect(x, y, x + width, y + height, paint);
 
-        for (Drawable draw : disks) {
+        for (GameObject draw : disks) {
             draw.draw(canvas);
         }
     }

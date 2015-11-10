@@ -1,7 +1,6 @@
 package br.com.marribe.torredehani;
 
 import android.os.Bundle;
-import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -10,14 +9,12 @@ import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 
-import br.com.marribe.torredehani.draws.AnimateView;
+import br.com.marribe.torredehani.draws.GameView;
 
 public class MainActivity extends AppCompatActivity {
 
-    private AnimateView animateView;
+    private GameView gameView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,7 +25,7 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        animateView = (AnimateView)findViewById(R.id.gameStage);
+        gameView = (GameView)findViewById(R.id.gameStage);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -44,14 +41,14 @@ public class MainActivity extends AppCompatActivity {
     protected void onStop() {
         super.onStop();
 
-        animateView.stop();
+        gameView.stop();
     }
 
     @Override
     protected void onStart() {
         super.onStart();
 
-        animateView.start();
+        gameView.start();
     }
 
     @Override

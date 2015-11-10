@@ -1,14 +1,11 @@
 package br.com.marribe.torredehani.draws;
 
 import android.graphics.Canvas;
-import android.util.Log;
-
-import java.util.Objects;
 
 /**
  * Created by danielmarcoto on 20/10/15.
  */
-public abstract class Drawable {
+public abstract class GameObject {
 
     protected float x;
     protected float y;
@@ -57,8 +54,8 @@ public abstract class Drawable {
 
     @Override
     public boolean equals(Object o){
-        Drawable drawable = (Drawable)o;
-        return drawable.x == x && drawable.y == y &&
-                drawable.width == width && drawable.height == height;
+        GameObject gameObject = (GameObject)o;
+        return gameObject.x == x && gameObject.y == y &&
+                gameObject.width == width && gameObject.height == height;
     }
 }

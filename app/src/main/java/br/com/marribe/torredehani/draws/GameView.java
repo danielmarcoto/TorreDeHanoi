@@ -12,7 +12,7 @@ import android.view.View;
 /**
  * Created by danielmarcoto on 20/10/15.
  */
-public class AnimateView extends View {
+public class GameView extends View {
 
     private TowerOfHanoi game;
     private boolean isRunning;
@@ -21,13 +21,13 @@ public class AnimateView extends View {
     private float xTouch;
     private float yTouch;
 
-    public AnimateView(Context context, AttributeSet attributeSet){
+    public GameView(Context context, AttributeSet attributeSet){
         super(context, attributeSet);
 
         isInitialized = false;
     }
 
-    public AnimateView(Context context){
+    public GameView(Context context){
         super(context);
     }
 

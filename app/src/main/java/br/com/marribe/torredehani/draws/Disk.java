@@ -7,7 +7,7 @@ import android.graphics.Paint;
 /**
  * Created by danielmarcoto on 20/10/15.
  */
-public class Disk extends Drawable {
+public class Disk extends GameObject {
 
     private static final int COLOR = Color.parseColor("#F0C808"); // Amarelo
     private static final int TEXT_COLOR = Color.parseColor("#FFF1D0");

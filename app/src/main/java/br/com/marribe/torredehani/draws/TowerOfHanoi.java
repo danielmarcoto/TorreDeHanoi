@@ -8,7 +8,7 @@ import android.util.Log;
 /**
  * Created by danielmarcoto on 20/10/15.
  */
-public class TowerOfHanoi extends Drawable {
+public class TowerOfHanoi extends GameObject {
 
     private static final int STAGE_COLOR = Color.parseColor("#06AED5"); // Azul claro
     private static final int BACK_COLOR = Color.parseColor("#FFF1D0"); // Bege
