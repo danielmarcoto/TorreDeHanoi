@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Torre de Hanói</string>
+    <string name="action_settings">Configurações</string>
+    <string name="new_game">Novo Jogo</string>
+    <string name="undo">Desfazer</string>
+    <string name="solve">Solucionar</string>
+</resources>
