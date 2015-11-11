@@ -11,6 +11,9 @@ import java.util.Stack;
  */
 public class Rod extends GameObject {
 
+    public static final float DEFAULT_WIDTH = 40;
+    public static final float DEFAULT_HEIGHT = 700;
+
     private static final int DEFAULT_COLOR = Color.parseColor("#086788"); // Azul escuro
     private static final int SELECTED_COLOR = Color.parseColor("#DD1C1A"); // Vermelho
 
@@ -70,6 +73,14 @@ public class Rod extends GameObject {
 
     public void setIsSelected(boolean isSelected) {
         this.isSelected = isSelected;
+    }
+
+    public float getNextDiskX(){
+        return x;
+    }
+
+    public float getNextDiskY(){
+        return (y + height) - ((Disk.SPACE + Disk.DEFAULT_HEIGHT) * (diskCount + 1));
     }
 
 }

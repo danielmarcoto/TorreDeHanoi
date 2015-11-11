@@ -9,6 +9,11 @@ import android.graphics.Paint;
  */
 public class Disk extends GameObject {
 
+    public static final float SPACE = 20;
+    public static final float WIDTH_INCREMENT = 30;
+    public static final float DEFAULT_HEIGHT = 60;
+    public static final float WIDTH_TO_GREATER = 300;
+
     private static final int COLOR = Color.parseColor("#F0C808"); // Amarelo
     private static final int TEXT_COLOR = Color.parseColor("#FFF1D0");
 

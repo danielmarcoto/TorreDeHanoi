@@ -68,56 +68,59 @@ public class TowerOfHanoi extends GameObject {
 
     public void initialize(){
 
-        final float rodWidth = 40;
-        final float rodHeight = 700;
+        //final float rodWidth = 40;
+        //final float rodHeight = 700;
 
-        float xStart = (width - (rodWidth * 3)) / 4;
+        float xStart = (width - (Rod.DEFAULT_WIDTH * 3)) / 4;
         this.yInitStage = height - 200;
-        float yInitRod = yInitStage - rodHeight;
+        float yInitRod = yInitStage - Rod.DEFAULT_HEIGHT;
 
         firstRod = new Rod();
         firstRod.setX(xStart);
         firstRod.setY(yInitRod);
-        firstRod.setWidth(rodWidth);
-        firstRod.setHeight(rodHeight);
+        firstRod.setWidth(Rod.DEFAULT_WIDTH);
+        firstRod.setHeight(Rod.DEFAULT_HEIGHT);
 
         secondRod = new Rod();
-        secondRod.setX(rodWidth + (xStart * 2));
+        secondRod.setX(Rod.DEFAULT_WIDTH + (xStart * 2));
         secondRod.setY(yInitRod);
-        secondRod.setWidth(rodWidth);
-        secondRod.setHeight(rodHeight);
+        secondRod.setWidth(Rod.DEFAULT_WIDTH);
+        secondRod.setHeight(Rod.DEFAULT_HEIGHT);
 
         thirdRod = new Rod();
-        thirdRod.setX((rodWidth * 2) + (xStart * 3));
+        thirdRod.setX((Rod.DEFAULT_WIDTH * 2) + (xStart * 3));
         thirdRod.setY(yInitRod);
-        thirdRod.setWidth(rodWidth);
-        thirdRod.setHeight(rodHeight);
+        thirdRod.setWidth(Rod.DEFAULT_WIDTH);
+        thirdRod.setHeight(Rod.DEFAULT_HEIGHT);
 
         //Log.i("Log", "Disk " + i);
         //Log.i("Log", "x: " + diskX + " / y: " + diskY);
         //Log.i("Log", "width: " + diskWidth + " / height: " + diskHeight);
 
         // Inicializar os discos
-        final float diskSpace = 20;
-        final float diskWidthInc = 30;
-        final float diskHeight = 60;
-        float diskWidth = 300;
-        float diskY = this.yInitStage - diskSpace - diskHeight;
-        float diskX = xStart + (rodWidth / 2) - (diskWidth / 2);
+        //final float diskSpace = 20;
+        //final float diskWidthInc = 30;
+        //final float diskHeight = 60;
+        float diskWidth = Disk.WIDTH_TO_GREATER;
+        //float diskY = this.yInitStage - Disk.SPACE - Disk.DEFAULT_HEIGHT;
+        float diskY = firstRod.getNextDiskY();
+        float diskX = xStart + (Rod.DEFAULT_WIDTH / 2) - (diskWidth / 2);
 
         for (int i = amountOfDisks; i > 0; i--){
 
             Disk disk = new Disk(i + 1);
             disk.setWidth(diskWidth);
-            disk.setHeight(diskHeight);
+            disk.setHeight(Disk.DEFAULT_HEIGHT);
             disk.setX(diskX);
             disk.setY(diskY);
 
             firstRod.push(disk);
 
-            diskWidth -= (diskWidthInc * 2);
-            diskY -= diskHeight + diskSpace;
-            diskX += diskWidthInc;
+            diskWidth -= (Disk.WIDTH_INCREMENT * 2);
+            //diskY -= Disk.DEFAULT_HEIGHT + Disk.SPACE;
+            diskX += Disk.WIDTH_INCREMENT;
+            diskY = firstRod.getNextDiskY();
+            //diskX = firstRod.getNextDiskX();
 
             Log.i("Log", "disk " + disk.getDiskNumber());
         }
