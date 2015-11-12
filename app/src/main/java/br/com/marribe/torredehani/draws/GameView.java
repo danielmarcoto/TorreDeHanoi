@@ -21,26 +21,33 @@ public class GameView extends View {
     private float xTouch;
     private float yTouch;
 
+    private Context contextActity;
+
     public GameView(Context context, AttributeSet attributeSet){
         super(context, attributeSet);
 
         isInitialized = false;
+        contextActity = context;
     }
 
     public GameView(Context context){
         super(context);
+
+        contextActity = context;
     }
 
     public void initialize(){
 
         try {
-            game = new TowerOfHanoi(6);
+            game = new TowerOfHanoi(3);
             game.setX(0);
             game.setY(0);
             game.setWidth(getWidth());
             game.setHeight(getHeight());
 
             game.initialize();
+
+            final View current = this;
 
             // Criar eventos para o toque
             setOnTouchListener(new OnTouchListener() {
@@ -54,21 +61,28 @@ public class GameView extends View {
 
                         if (isInitialized) {
                             // TODO: Interações do Jogo
-                            TowerOfHanoi.MovementState movementState = TowerOfHanoi.MovementState.Continue;
+                            TowerOfHanoi.MovementState movementState = TowerOfHanoi.MovementState.Nothing;
 
                             if (game.getFirstRod().intercept(xTouch, yTouch)) {
-                                movementState = game.selectDisk(game.getFirstRod());
+                                movementState = game.selectDestinationRod(game.getFirstRod());
                             }
 
                             if (game.getSecondRod().intercept(xTouch, yTouch)) {
-                                movementState = game.selectDisk(game.getSecondRod());
+                                movementState = game.selectDestinationRod(game.getSecondRod());
                             }
 
                             if (game.getThirdRod().intercept(xTouch, yTouch)) {
-                                movementState = game.selectDisk(game.getThirdRod());
+                                movementState = game.selectDestinationRod(game.getThirdRod());
                             }
 
                             Log.i("Log", "RETORNO: " + movementState.toString());
+
+                            if (movementState.equals(TowerOfHanoi.MovementState.NotAllowed)) {
+                                Snackbar.make(current, "Movimento não permitido", Snackbar.LENGTH_LONG)
+                                        .setAction("Action", null).show();
+                            }
+
+                            movementState = null;
                         }
                         //Log.i("Log", "x: " + xTouch + " / y:" + yTouch);
                     }
@@ -99,6 +113,8 @@ public class GameView extends View {
     public void start(){
         isRunning = true;
 
+        final View current = this;
+
         AsyncTask<Void,Void,Void> asyncTask = new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... params) {
@@ -108,15 +124,19 @@ public class GameView extends View {
                         if (game.getDestinationRod() != null &&
                                 game.getDisk() != null){
 
-                            Disk disk = game.getDisk();
-                            Rod rod = game.getDestinationRod();
+                            game.moveDisk(game.getDisk(), game.getDestinationRod());
 
-                            disk.setX(disk.getX() + 10);
+                            if (game.getAmountOfDisks() ==
+                                    game.getThirdRod().getDiskCount()){
 
-                            if (disk.getWidth() >= 500){
-                                game.setSelectedRod(null);
-                                game.setDisk(null);
+                                Snackbar.make(current, "Você venceu!!!", Snackbar.LENGTH_LONG)
+                                        .setAction("Action", null).show();
+
+                                isInitialized = false;
                             }
+
+                            game.setDisk(null);
+                            game.setDestinationRod(null);
                         }
 
                         publishProgress();

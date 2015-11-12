@@ -64,7 +64,7 @@ public class Rod extends GameObject {
     public boolean isDiskAccepted(Disk disk){
         if (disks.size() == 0) return true;
         Disk current = disks.peek();
-        return current.getDiskNumber() < disk.getDiskNumber();
+        return current.getDiskNumber() > disk.getDiskNumber();
     }
 
     public boolean isSelected() {
@@ -75,12 +75,20 @@ public class Rod extends GameObject {
         this.isSelected = isSelected;
     }
 
-    public float getNextDiskX(){
-        return x;
+    public float getXCenter(){
+        return x + (width / 2);
     }
 
     public float getNextDiskY(){
-        return (y + height) - ((Disk.SPACE + Disk.DEFAULT_HEIGHT) * (diskCount + 1));
+        return (y + height) - ((Disk.SPACE + Disk.DEFAULT_HEIGHT) * (disks.size()));
     }
 
+    @Override
+    public boolean intercept(float x, float y) {
+        if (disks.size() == 0) return super.intercept(x, y);
+
+        Disk disk = disks.peek();
+
+        return super.intercept(x, y) || disk.intercept(x, y);
+    }
 }
