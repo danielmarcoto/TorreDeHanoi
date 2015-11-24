@@ -26,15 +26,16 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         gameView = (GameView)findViewById(R.id.gameStage);
-        /*
+
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Snackbar.make(view, "Iniciar auto-resolução do jogo", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
+                gameView.startSolution();
             }
-        });*/
+        });
     }
 
     @Override

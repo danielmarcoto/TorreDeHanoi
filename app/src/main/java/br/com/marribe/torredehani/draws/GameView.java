@@ -15,11 +15,20 @@ import android.view.View;
 public class GameView extends View {
 
     private TowerOfHanoi game;
+    private GameAutosolve solution;
+
     private boolean isRunning;
     private boolean isInitialized;
 
     private float xTouch;
     private float yTouch;
+
+    private Disk diskToFadeIn;
+    private Disk diskToFadeOut;
+
+    private Rod rodDestination;
+
+    private boolean canPlay;
 
     private Context contextActity;
 
@@ -36,6 +45,22 @@ public class GameView extends View {
         contextActity = context;
     }
 
+    public void startSolution(){
+        canPlay = false;
+
+        solution = new GameAutosolve(game);
+
+        // Primeiro movimento
+        Rod[] movement = solution.getDisksPairOriginDestination();
+        game.selectDestinationRod(movement[0]);
+        game.selectDestinationRod(movement[1]);
+
+        diskToFadeOut = game.getDisk();
+        rodDestination = game.getDestinationRod();
+
+        Log.i("Log", "Iniciar auto-solução!!!");
+    }
+
     public void initialize(){
 
         try {
@@ -47,6 +72,8 @@ public class GameView extends View {
 
             game.initialize();
 
+            canPlay = true;
+
             final View current = this;
 
             // Criar eventos para o toque
@@ -54,13 +81,15 @@ public class GameView extends View {
                 @Override
                 public boolean onTouch(View v, MotionEvent event) {
 
+                    if (!canPlay) return false;
+
                     if (event.getAction() == MotionEvent.ACTION_DOWN) {
 
                         xTouch = event.getX();
                         yTouch = event.getY();
 
                         if (isInitialized) {
-                            // TODO: Interações do Jogo
+
                             TowerOfHanoi.MovementState movementState = TowerOfHanoi.MovementState.Nothing;
 
                             if (game.getFirstRod().intercept(xTouch, yTouch)) {
@@ -77,21 +106,26 @@ public class GameView extends View {
 
                             Log.i("Log", "RETORNO: " + movementState.toString());
 
-                            if (movementState.equals(TowerOfHanoi.MovementState.NotAllowed)) {
-                                Snackbar.make(current, "Movimento não permitido", Snackbar.LENGTH_LONG)
-                                        .setAction("Action", null).show();
+                            switch (movementState){
+                                case Ok:
+                                    diskToFadeOut = game.getDisk();
+                                    rodDestination = game.getDestinationRod();
+                                    canPlay = false;
+                                    break;
+                                case NotAllowed:
+                                    Snackbar.make(current,
+                                            "Movimento não permitido",
+                                            Snackbar.LENGTH_LONG)
+                                            .setAction("Action", null).show();
+                                    break;
                             }
-
-                            movementState = null;
                         }
-                        //Log.i("Log", "x: " + xTouch + " / y:" + yTouch);
                     }
 
                     return true;
                 }
             });
         } catch (InvalidStateException ex){
-            // TODO: notificar um problema
             Snackbar.make(this, ex.getMessage(), Snackbar.LENGTH_LONG)
                     .setAction("Action", null).show();
         }
@@ -121,22 +155,58 @@ public class GameView extends View {
                 while (isRunning){
                     try {
                         //
-                        if (game.getDestinationRod() != null &&
-                                game.getDisk() != null){
+                        final int diskIncrement = 51;
 
-                            game.moveDisk(game.getDisk(), game.getDestinationRod());
+                        if (diskToFadeOut != null){
+                            int alpha = diskToFadeOut.getAlpha();
+                            diskToFadeOut.setAlpha(alpha - diskIncrement);
 
-                            if (game.getAmountOfDisks() ==
-                                    game.getThirdRod().getDiskCount()){
+                            if (alpha == 0) {
+                                game.moveDisk(diskToFadeOut, rodDestination);
+                                diskToFadeIn = diskToFadeOut;
+                                diskToFadeOut = null;
 
-                                Snackbar.make(current, "Você venceu!!!", Snackbar.LENGTH_LONG)
-                                        .setAction("Action", null).show();
-
-                                isInitialized = false;
+                                Log.i("Log", "acabou o fade out");
                             }
+                        }
 
-                            game.setDisk(null);
-                            game.setDestinationRod(null);
+                        if (diskToFadeIn != null){
+                            int alpha = diskToFadeIn.getAlpha();
+
+                            if (alpha == 255) {
+
+                                // Detecta quando o jogo acabou, jogador venceu
+                                if (game.getAmountOfDisks() ==
+                                        game.getThirdRod().getDiskCount()){
+
+                                    Snackbar.make(current, "Você venceu!!!", Snackbar.LENGTH_LONG)
+                                            .setAction("Action", null).show();
+
+                                    isInitialized = false;
+                                    solution = null;
+                                }
+
+                                canPlay = true;
+                                diskToFadeIn = null;
+                                diskToFadeOut = null;
+                                game.setDisk(null);
+                                game.setDestinationRod(null);
+
+                                Log.i("Log", "acabou o fade in");
+
+                                // Detecta se há auto-solução em andamento
+                                if (solution != null) {
+                                    Rod[] firstMovement = solution.getDisksPairOriginDestination();
+                                    game.selectDestinationRod(firstMovement[0]);
+                                    game.selectDestinationRod(firstMovement[1]);
+
+                                    diskToFadeOut = game.getDisk();
+                                    rodDestination = game.getDestinationRod();
+
+                                }
+                            } else {
+                                diskToFadeIn.setAlpha(alpha + diskIncrement);
+                            }
                         }
 
                         publishProgress();

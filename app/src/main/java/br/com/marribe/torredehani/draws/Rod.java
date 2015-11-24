@@ -37,6 +37,10 @@ public class Rod extends GameObject {
         return disk;
     }
 
+    public Disk peek(){
+        return disks.peek();
+    }
+
     public int getDiskCount(){
         return diskCount;
     }

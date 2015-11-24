@@ -74,9 +74,6 @@ public class TowerOfHanoi extends GameObject {
 
     public void initialize(){
 
-        //final float rodWidth = 40;
-        //final float rodHeight = 700;
-
         float xStart = (width - (Rod.DEFAULT_WIDTH * 3)) / 6;
         this.yInitStage = height - 200;
         float yInitRod = yInitStage - Rod.DEFAULT_HEIGHT;
@@ -218,8 +215,6 @@ public class TowerOfHanoi extends GameObject {
         Nothing,
         NotAllowed,
         Ok,
-        Continue,
-        GameLost,
-        GameWin
+        Continue
     }
 }
