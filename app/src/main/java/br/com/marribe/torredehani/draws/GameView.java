@@ -52,12 +52,6 @@ public class GameView extends View {
         solution.initialize();
 
         // Primeiro movimento
-        /*
-        Rod[] movement = solution.getDisksPairOriginDestination();
-        game.selectDestinationRod(movement[0]);
-        game.selectDestinationRod(movement[1]);
-        */
-
         DiskMovement movement = solution.getNextDiskMovement();
         game.selectDestinationRod(movement.getCurrent());
         game.selectDestinationRod(movement.getDestination());
@@ -71,7 +65,7 @@ public class GameView extends View {
     public void initialize(){
 
         try {
-            game = new TowerOfHanoi(4);
+            game = new TowerOfHanoi(6);
             game.setX(0);
             game.setY(0);
             game.setWidth(getWidth());

@@ -3,7 +3,6 @@ package br.com.marribe.torredehani.draws;
 import android.util.Log;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -13,9 +12,6 @@ public class GameAutosolve {
     private TowerOfHanoi towerOfHanoi;
     private int totalDisks;
     private double totalMovements;
-
-    private List<Rod> rodsOrigin;
-    private List<Rod> rodsDestination;
 
     private DiskMovement[] movements;
 
@@ -28,31 +24,6 @@ public class GameAutosolve {
         totalMovements = Math.pow(2, totalDisks) - 1;
 
         movements = new DiskMovement[(int)totalMovements];
-
-        // Solução estática para 3 discos
-        /*
-        if (towerOfHanoi.getAmountOfDisks() == 3){
-            rodsOrigin = new ArrayList<>(7);
-            rodsDestination = new ArrayList<>(7);
-            currentPosition = 0;
-
-            rodsOrigin.add(0, towerOfHanoi.getFirstRod());
-            rodsOrigin.add(1, towerOfHanoi.getFirstRod());
-            rodsOrigin.add(2, towerOfHanoi.getThirdRod());
-            rodsOrigin.add(3, towerOfHanoi.getFirstRod());
-            rodsOrigin.add(4, towerOfHanoi.getSecondRod());
-            rodsOrigin.add(5, towerOfHanoi.getSecondRod());
-            rodsOrigin.add(6, towerOfHanoi.getFirstRod());
-
-            rodsDestination.add(0, towerOfHanoi.getThirdRod());
-            rodsDestination.add(1, towerOfHanoi.getSecondRod());
-            rodsDestination.add(2, towerOfHanoi.getSecondRod());
-            rodsDestination.add(3, towerOfHanoi.getThirdRod());
-            rodsDestination.add(4, towerOfHanoi.getFirstRod());
-            rodsDestination.add(5, towerOfHanoi.getThirdRod());
-            rodsDestination.add(6, towerOfHanoi.getThirdRod());
-        }
-        */
     }
 
     public void initialize(){
@@ -73,8 +44,6 @@ public class GameAutosolve {
             rodsCurrentState.put(i, towerOfHanoi.getFirstRod());
         }
 
-        //DiskMovement[] movements = new DiskMovement[(int)totalMovements];
-
         for (Map.Entry<Disk, int[]> item : initialMovementHash.entrySet()) {
 
             Disk disk = item.getKey();
@@ -92,13 +61,6 @@ public class GameAutosolve {
                 diskMovement.setCurrent(current);
 
                 // Detecta se o disco é par ou ímpar
-                /*
-                if (disk.getDiskNumber() % 2 == 0){
-                    diskMovement.setDestination(getNextClockwise(current));
-                } else {
-                    diskMovement.setDestination(getNextAntiClockwise(current));
-                }*/
-
                 if ((totalDisks % 2 == 1 && diskNumber % 2 == 1) ||
                         (totalDisks % 2 == 0 && diskNumber % 2 == 0)){
                     diskMovement.setDestination(getNextAntiClockwise(current));

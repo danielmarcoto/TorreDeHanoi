@@ -31,10 +31,6 @@ public class Rod extends GameObject {
         disks = new Stack<>();
     }
 
-    public Rod(){
-        disks = new Stack<>();
-    }
-
     public int getRodNumber() {
         return rodNumber;
     }
@@ -53,10 +49,6 @@ public class Rod extends GameObject {
         return disk;
     }
 
-    public Disk peek(){
-        return disks.peek();
-    }
-
     public int getDiskCount(){
         return diskCount;
     }
@@ -65,7 +57,6 @@ public class Rod extends GameObject {
     public void draw(Canvas canvas) {
 
         // Desenha o elemento da torre
-
         int currentColor = DEFAULT_COLOR;
         if (isSelected){
             currentColor = SELECTED_COLOR;
@@ -102,10 +93,6 @@ public class Rod extends GameObject {
     public float getNextDiskY(){
         return (y + height) - ((Disk.SPACE + Disk.DEFAULT_HEIGHT) * (disks.size()));
     }
-
-    //public List<Disk> getDisks(){
-    //    return disks.subList(0, diskCount);
-    //}
 
     public HashMap<Integer, Disk> getDisks(){
         HashMap<Integer, Disk> diskHashMap = new HashMap<>();

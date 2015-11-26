@@ -18,29 +18,11 @@ public class TowerOfHanoi extends GameObject {
     private Rod thirdRod;
 
     private Rod selectedRod;
-
-    public int getAmountOfDisks() {
-        return amountOfDisks;
-    }
-
-    private int amountOfDisks;
-
-    public void setDestinationRod(Rod destinationRod) {
-        this.destinationRod = destinationRod;
-    }
-
-    public void setDisk(Disk disk) {
-        this.disk = disk;
-    }
-
     private Rod destinationRod;
     private Disk disk;
 
     private float yInitStage;
-
-    public TowerOfHanoi() throws InvalidStateException {
-        this(3);
-    }
+    private int amountOfDisks;
 
     public TowerOfHanoi(int amountOfDisks) throws InvalidStateException{
         this.amountOfDisks = amountOfDisks;
@@ -59,6 +41,19 @@ public class TowerOfHanoi extends GameObject {
     public void setSelectedRod(Rod selectedRod) {
         this.selectedRod = selectedRod;
     }
+
+    public int getAmountOfDisks() {
+        return amountOfDisks;
+    }
+
+    public void setDestinationRod(Rod destinationRod) {
+        this.destinationRod = destinationRod;
+    }
+
+    public void setDisk(Disk disk) {
+        this.disk = disk;
+    }
+
 
     public Rod getFirstRod() {
         return firstRod;
