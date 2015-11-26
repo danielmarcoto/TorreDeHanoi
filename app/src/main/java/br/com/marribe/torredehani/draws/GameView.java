@@ -49,11 +49,18 @@ public class GameView extends View {
         canPlay = false;
 
         solution = new GameAutosolve(game);
+        solution.initialize();
 
         // Primeiro movimento
+        /*
         Rod[] movement = solution.getDisksPairOriginDestination();
         game.selectDestinationRod(movement[0]);
         game.selectDestinationRod(movement[1]);
+        */
+
+        DiskMovement movement = solution.getNextDiskMovement();
+        game.selectDestinationRod(movement.getCurrent());
+        game.selectDestinationRod(movement.getDestination());
 
         diskToFadeOut = game.getDisk();
         rodDestination = game.getDestinationRod();
@@ -64,7 +71,7 @@ public class GameView extends View {
     public void initialize(){
 
         try {
-            game = new TowerOfHanoi(3);
+            game = new TowerOfHanoi(4);
             game.setX(0);
             game.setY(0);
             game.setWidth(getWidth());
@@ -156,6 +163,7 @@ public class GameView extends View {
                     try {
                         //
                         final int diskIncrement = 51;
+                        //final int diskIncrement = 17;
 
                         if (diskToFadeOut != null){
                             int alpha = diskToFadeOut.getAlpha();
@@ -196,9 +204,9 @@ public class GameView extends View {
 
                                 // Detecta se há auto-solução em andamento
                                 if (solution != null) {
-                                    Rod[] firstMovement = solution.getDisksPairOriginDestination();
-                                    game.selectDestinationRod(firstMovement[0]);
-                                    game.selectDestinationRod(firstMovement[1]);
+                                    DiskMovement movement = solution.getNextDiskMovement();
+                                    game.selectDestinationRod(movement.getCurrent());
+                                    game.selectDestinationRod(movement.getDestination());
 
                                     diskToFadeOut = game.getDisk();
                                     rodDestination = game.getDestinationRod();

@@ -72,25 +72,37 @@ public class TowerOfHanoi extends GameObject {
         return thirdRod;
     }
 
+    public Rod getRodByNumber(int number){
+        switch (number){
+            case 1:
+                return firstRod;
+            case 2:
+                return secondRod;
+            case 3:
+                return thirdRod;
+        }
+        return null;
+    }
+
     public void initialize(){
 
         float xStart = (width - (Rod.DEFAULT_WIDTH * 3)) / 6;
         this.yInitStage = height - 200;
         float yInitRod = yInitStage - Rod.DEFAULT_HEIGHT;
 
-        firstRod = new Rod();
+        firstRod = new Rod(1);
         firstRod.setX(xStart);
         firstRod.setY(yInitRod);
         firstRod.setWidth(Rod.DEFAULT_WIDTH);
         firstRod.setHeight(Rod.DEFAULT_HEIGHT);
 
-        secondRod = new Rod();
+        secondRod = new Rod(2);
         secondRod.setX(Rod.DEFAULT_WIDTH + (xStart * 3));
         secondRod.setY(yInitRod);
         secondRod.setWidth(Rod.DEFAULT_WIDTH);
         secondRod.setHeight(Rod.DEFAULT_HEIGHT);
 
-        thirdRod = new Rod();
+        thirdRod = new Rod(3);
         thirdRod.setX((Rod.DEFAULT_WIDTH * 2) + (xStart * 5));
         thirdRod.setY(yInitRod);
         thirdRod.setWidth(Rod.DEFAULT_WIDTH);
@@ -175,8 +187,6 @@ public class TowerOfHanoi extends GameObject {
             this.selectedRod = null;
             return MovementState.NotAllowed;
         }
-
-
 
         Disk disk = selectedRod.pop();
 

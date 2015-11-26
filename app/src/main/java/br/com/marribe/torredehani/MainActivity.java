@@ -1,5 +1,6 @@
 package br.com.marribe.torredehani;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -56,6 +57,7 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
+
         return true;
     }
 
@@ -69,15 +71,20 @@ public class MainActivity extends AppCompatActivity {
         switch (id){
             case R.id.action_new_game:
                 Log.i("Hanoi", "Novo Jogo");
+                gameView.initialize();
                 break;
             case R.id.action_undo:
                 Log.i("Hanoi", "Desfazer");
                 break;
             case R.id.action_solve:
                 Log.i("Hanoi", "Resolver");
+                gameView.startSolution();
                 break;
             case R.id.action_settings:
                 Log.i("Hanoi", "Configurações");
+
+                Intent intent = new Intent(this, SettingsActivity.class);
+                startActivity(intent);
                 break;
         }
 

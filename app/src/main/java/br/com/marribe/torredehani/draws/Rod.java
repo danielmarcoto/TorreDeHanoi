@@ -4,6 +4,9 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Stack;
 
 /**
@@ -17,21 +20,34 @@ public class Rod extends GameObject {
     private static final int DEFAULT_COLOR = Color.parseColor("#086788"); // Azul escuro
     private static final int SELECTED_COLOR = Color.parseColor("#DD1C1A"); // Vermelho
 
+    private int rodNumber;
     private boolean isSelected;
     private int diskCount;
 
     private Stack<Disk> disks;
 
+    public Rod(int rodNumber){
+        this.rodNumber = rodNumber;
+        disks = new Stack<>();
+    }
+
     public Rod(){
         disks = new Stack<>();
     }
 
+    public int getRodNumber() {
+        return rodNumber;
+    }
+
     public Disk pop(){
         diskCount--;
-        return disks.pop();
+        Disk disk = disks.pop();
+        disk.setRod(null);
+        return disk;
     }
 
     public Disk push(Disk disk){
+        disk.setRod(this);
         disks.push(disk);
         diskCount++;
         return disk;
@@ -85,6 +101,20 @@ public class Rod extends GameObject {
 
     public float getNextDiskY(){
         return (y + height) - ((Disk.SPACE + Disk.DEFAULT_HEIGHT) * (disks.size()));
+    }
+
+    //public List<Disk> getDisks(){
+    //    return disks.subList(0, diskCount);
+    //}
+
+    public HashMap<Integer, Disk> getDisks(){
+        HashMap<Integer, Disk> diskHashMap = new HashMap<>();
+
+        for (Disk disk : disks){
+            diskHashMap.put(disk.getDiskNumber(), disk);
+        }
+
+        return diskHashMap;
     }
 
     @Override

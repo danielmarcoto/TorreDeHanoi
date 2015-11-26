@@ -20,6 +20,7 @@ public class Disk extends GameObject {
 
     private int diskNumber;
     private int alpha;
+    private Rod rod;
 
     public Disk(int diskNumber){
         this.diskNumber = diskNumber;
@@ -32,6 +33,14 @@ public class Disk extends GameObject {
 
     public void setAlpha(int alpha) {
         this.alpha = alpha;
+    }
+
+    public Rod getRod() {
+        return rod;
+    }
+
+    public void setRod(Rod rod) {
+        this.rod = rod;
     }
 
     public int getDiskNumber() {
