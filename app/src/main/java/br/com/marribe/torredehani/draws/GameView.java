@@ -3,11 +3,13 @@ package br.com.marribe.torredehani.draws;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.os.AsyncTask;
-import android.support.design.widget.Snackbar;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+
+import java.util.List;
+import java.util.Stack;
 
 import br.com.marribe.torredehani.interfaces.OnGameEvent;
 
@@ -16,6 +18,7 @@ import br.com.marribe.torredehani.interfaces.OnGameEvent;
  */
 public class GameView extends View {
 
+    private Stack<DiskMovement> diskMovements;
     private TowerOfHanoi game;
     private GameAutosolve solution;
     private GamePreferences gamePreferences;
@@ -30,9 +33,10 @@ public class GameView extends View {
     private Disk diskToFadeIn;
     private Disk diskToFadeOut;
     private Rod rodDestination;
-    private int movementAmount;
 
     private boolean canPlay;
+    private boolean canNotifyGameInit;
+    private boolean canNotifyGameFinished;
 
     public GameView(Context context, AttributeSet attributeSet){
         super(context, attributeSet);
@@ -45,12 +49,24 @@ public class GameView extends View {
         super(context);
     }
 
+    public TowerOfHanoi getGame() {
+        return game;
+    }
+
     public OnGameEvent getOnGameEvent() {
         return onGameEvent;
     }
 
+    public boolean isAutoSolutionRunning(){
+        return solution != null;
+    }
+
     public void setOnGameEvent(OnGameEvent onGameEvent) {
         this.onGameEvent = onGameEvent;
+    }
+
+    public void startTrace(List<DiskMovement> diskMovements){
+        // TODO: Fazer meio de reproduzir um jogo já registado no banco de dados
     }
 
     public void startSolution(){
@@ -73,7 +89,9 @@ public class GameView extends View {
     public void initialize(){
 
         try {
-            int diskAmount = Integer.parseInt(gamePreferences.getDiskAmount());
+            diskMovements = new Stack<>();
+
+            final int diskAmount = Integer.parseInt(gamePreferences.getDiskAmount());
 
             game = new TowerOfHanoi(diskAmount);
             game.setX(0);
@@ -84,8 +102,6 @@ public class GameView extends View {
             game.initialize();
 
             canPlay = true;
-
-            final View current = this;
 
             // Criar eventos para o toque
             setOnTouchListener(new OnTouchListener() {
@@ -119,6 +135,17 @@ public class GameView extends View {
 
                             switch (movementState){
                                 case Ok:
+
+                                    if (onGameEvent != null){
+                                        DiskMovement diskMovement = new DiskMovement();
+                                        diskMovement.setDestination(game.getDestinationRod());
+                                        diskMovement.setDisk(game.getDisk());
+                                        diskMovement.setCurrent(game.getSelectedRod());
+                                        diskMovements.push(diskMovement);
+
+                                        onGameEvent.onDiskMoves(diskMovement);
+                                    }
+
                                     diskToFadeOut = game.getDisk();
                                     rodDestination = game.getDestinationRod();
                                     canPlay = false;
@@ -126,12 +153,6 @@ public class GameView extends View {
                                 case NotAllowed:
                                     if (onGameEvent != null)
                                         onGameEvent.onNotAllowedMovement();
-                                    /*
-                                    Snackbar.make(current,
-                                            "Movimento não permitido",
-                                            Snackbar.LENGTH_LONG)
-                                            .setAction("Action", null).show();
-                                            */
                                     break;
                             }
                         }
@@ -143,10 +164,10 @@ public class GameView extends View {
         } catch (InvalidStateException ex){
             if (onGameEvent != null)
                 onGameEvent.onException(ex);
-            /*
-            Snackbar.make(this, ex.getMessage(), Snackbar.LENGTH_LONG)
-                    .setAction("Action", null).show();*/
         }
+
+        if (onGameEvent != null)
+            onGameEvent.onInitialize();
     }
 
     @Override
@@ -156,7 +177,6 @@ public class GameView extends View {
         if (!isInitialized){
             initialize();
 
-            movementAmount = 0;
             isInitialized = true;
         }
 
@@ -165,8 +185,6 @@ public class GameView extends View {
 
     public void start(){
         isRunning = true;
-
-        final View current = this;
 
         AsyncTask<Void,Void,Void> asyncTask = new AsyncTask<Void, Void, Void>() {
             @Override
@@ -186,6 +204,10 @@ public class GameView extends View {
                                 diskToFadeIn = diskToFadeOut;
                                 diskToFadeOut = null;
 
+                                if (game.getAmountOfMovements() == 1){
+                                    canNotifyGameInit = true;
+                                }
+
                                 Log.i("Log", "acabou o fade out");
                             }
                         }
@@ -199,12 +221,7 @@ public class GameView extends View {
                                 if (game.getAmountOfDisks() ==
                                         game.getThirdRod().getDiskCount()){
 
-                                    if (onGameEvent != null)
-                                        onGameEvent.onFinish();
-                                    /*
-                                    Snackbar.make(current, "Você venceu!!!", Snackbar.LENGTH_LONG)
-                                            .setAction("Action", null).show();
-                                    */
+                                    canNotifyGameFinished = true;
                                     isInitialized = false;
                                     solution = null;
                                 }
@@ -214,7 +231,6 @@ public class GameView extends View {
                                 diskToFadeOut = null;
                                 game.setDisk(null);
                                 game.setDestinationRod(null);
-                                movementAmount = 0;
 
                                 Log.i("Log", "acabou o fade in");
 
@@ -230,7 +246,6 @@ public class GameView extends View {
                                 }
                             } else {
                                 diskToFadeIn.setAlpha(alpha + diskIncrement);
-                                movementAmount++;
                             }
                         }
 
@@ -250,8 +265,15 @@ public class GameView extends View {
             protected void onProgressUpdate(Void... values) {
                 super.onProgressUpdate(values);
 
-                if (movementAmount > 0 && onGameEvent != null)
+                if (canNotifyGameInit && onGameEvent != null){
+                    canNotifyGameInit = false;
                     onGameEvent.onStart();
+                }
+
+                if (canNotifyGameFinished && onGameEvent != null){
+                    canNotifyGameFinished = false;
+                    onGameEvent.onFinish();
+                }
 
                 invalidate();
             }
@@ -261,5 +283,19 @@ public class GameView extends View {
 
     public void stop(){
         isRunning = false;
+    }
+
+    public boolean undo(){
+        if (!isInitialized || diskMovements.size() == 0) return false;
+
+        DiskMovement diskMovement = diskMovements.pop();
+
+        // Realiza o movimento invertendo a origem e o destino
+        game.selectDestinationRod(diskMovement.getDestination());
+        game.selectDestinationRod(diskMovement.getCurrent());
+
+        diskToFadeOut = game.getDisk();
+        rodDestination = game.getDestinationRod();
+        return true;
     }
 }

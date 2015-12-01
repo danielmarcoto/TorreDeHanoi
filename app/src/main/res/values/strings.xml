@@ -4,6 +4,7 @@
     <string name="new_game">Novo Jogo</string>
     <string name="undo">Desfazer</string>
     <string name="solve">Solucionar</string>
+    <string name="history">Histórico</string>
     <string name="title_activity_settings">Settings</string>
     <string name="pref_title_user">Jogo e usuário</string>
     <string name="pref_disks_amount">Quantidade de Discos</string>
@@ -26,6 +27,7 @@
     </string-array>
     <string name="msg_start_auto_resolution">Iniciar auto-resolução do jogo</string>
     <string name="msg_wrong_movement">Movimento não permitido</string>
+    <string name="msg_impossible_undo">Não é possível desfazer</string>
     <string name="msg_you_won">Você venceu!!!</string>
 
     <!-- Strings related to Settings -->

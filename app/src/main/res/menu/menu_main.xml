@@ -5,6 +5,8 @@
         android:orderInCategory="100" app:showAsAction="never" />
     <item android:id="@+id/action_undo" android:title="@string/undo"
         android:orderInCategory="100" app:showAsAction="never" />
+    <item android:id="@+id/action_history" android:title="@string/history"
+        android:orderInCategory="100" app:showAsAction="never" />
     <item android:id="@+id/action_solve" android:title="@string/solve"
         android:orderInCategory="100" app:showAsAction="never" />
     <item android:id="@+id/action_settings" android:title="@string/action_settings"

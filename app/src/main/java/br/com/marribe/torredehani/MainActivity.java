@@ -13,14 +13,24 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import java.util.List;
+
+import br.com.marribe.torredehani.draws.DiskMovement;
 import br.com.marribe.torredehani.draws.GamePreferences;
 import br.com.marribe.torredehani.draws.GameView;
+import br.com.marribe.torredehani.draws.TowerOfHanoi;
 import br.com.marribe.torredehani.interfaces.OnGameEvent;
+import br.com.marribe.torredehani.persistence.DbService;
+import br.com.marribe.torredehani.persistence.GameMatch;
 
 public class MainActivity extends AppCompatActivity {
 
     private GameView gameView;
     private FloatingActionButton fab;
+    private TowerOfHanoi game;
+    private DbService dbService;
+    private GameMatch gameMatch;
+    private int currentGameId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,12 +41,12 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        // Carregar estado inicial das preferências
+        // Carregar estado inicial das preferências do usuário
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-        GamePreferences gamePreferences = GamePreferences.getInstance();
+        final GamePreferences gamePreferences = GamePreferences.getInstance();
         gamePreferences.setPlayerName(
                 sharedPref.getString(
-                        SettingsActivity.preferenceName, getString(R.string.pref_player_name)
+                        SettingsActivity.preferenceName, getString(R.string.pref_default_player_name)
                 )
         );
         gamePreferences.setDiskAmount(
@@ -52,12 +62,16 @@ public class MainActivity extends AppCompatActivity {
 
         gameView = (GameView)findViewById(R.id.gameStage);
         fab = (FloatingActionButton) findViewById(R.id.fab);
+        dbService = new DbService(getApplicationContext());
 
         // Declarar os eventos
         gameView.setOnGameEvent(new OnGameEvent() {
             @Override
             public void onStart() {
                 fab.setVisibility(View.INVISIBLE);
+
+                if (!gameView.isAutoSolutionRunning())
+                    currentGameId = dbService.createGame(gameMatch);
             }
 
             @Override
@@ -66,12 +80,53 @@ public class MainActivity extends AppCompatActivity {
                         .setAction("Action", null).show();
 
                 fab.setVisibility(View.VISIBLE);
+
+                if (currentGameId > 0) {
+                    gameMatch.setIsFinished(true);
+                    dbService.updateGame(currentGameId, gameMatch);
+
+                    currentGameId = 0;
+                }
+            }
+
+            @Override
+            public void onInitialize() {
+                fab.setVisibility(View.VISIBLE);
+                game = gameView.getGame();
+
+                // Verifica se existe um estado de jogo anterior
+                int lastGameId = dbService.getRecentGameId();
+                if (lastGameId > 0){
+                    gameMatch = dbService.getGame(lastGameId);
+
+                    // Detecta se o jogo anterior não foi ganho
+                    if (!gameMatch.isFinished()){
+                        List<DiskMovement> diskMovements = dbService.getMovements(currentGameId);
+
+                        game.runDisksMovements((DiskMovement[])diskMovements.toArray());
+                    }
+                } else{
+                    gameMatch = new GameMatch();
+                    gameMatch.setPlayerName(gamePreferences.getPlayerName());
+                    gameMatch.setDisksAmount(game.getAmountOfDisks());
+                    gameMatch.setMovementAmount(0);
+                    gameMatch.setIsFinished(false);
+                }
             }
 
             @Override
             public void onNotAllowedMovement() {
                 Snackbar.make(gameView, getString(R.string.msg_wrong_movement), Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
+            }
+
+            @Override
+            public void onDiskMoves(DiskMovement diskMovement) {
+                if (currentGameId > 0){
+                    gameMatch.setMovementAmount(game.getAmountOfMovements());
+                    dbService.updateGame(currentGameId, gameMatch);
+                    dbService.saveMovement(currentGameId, diskMovement);
+                }
             }
 
             @Override
@@ -131,10 +186,20 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case R.id.action_undo:
                 Log.i("Hanoi", "Desfazer");
+                if (!gameView.undo()){
+                    Snackbar.make(gameView,
+                            getString(R.string.msg_impossible_undo),
+                            Snackbar.LENGTH_LONG)
+                            .setAction("Action", null).show();
+                }
                 break;
             case R.id.action_solve:
                 Log.i("Hanoi", "Resolver");
                 gameView.startSolution();
+                break;
+            case R.id.action_history:
+                Log.i("Hanoi", "Histórico");
+                // TODO: Carregar activity com lista de jogos anteriores
                 break;
             case R.id.action_settings:
                 Log.i("Hanoi", "Configurações");
