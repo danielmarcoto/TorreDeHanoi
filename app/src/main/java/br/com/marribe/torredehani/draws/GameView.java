@@ -9,6 +9,8 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
+import br.com.marribe.torredehani.interfaces.OnGameEvent;
+
 /**
  * Created by danielmarcoto on 20/10/15.
  */
@@ -16,6 +18,8 @@ public class GameView extends View {
 
     private TowerOfHanoi game;
     private GameAutosolve solution;
+    private GamePreferences gamePreferences;
+    private OnGameEvent onGameEvent;
 
     private boolean isRunning;
     private boolean isInitialized;
@@ -25,24 +29,28 @@ public class GameView extends View {
 
     private Disk diskToFadeIn;
     private Disk diskToFadeOut;
-
     private Rod rodDestination;
+    private int movementAmount;
 
     private boolean canPlay;
-
-    private Context contextActity;
 
     public GameView(Context context, AttributeSet attributeSet){
         super(context, attributeSet);
 
         isInitialized = false;
-        contextActity = context;
+        gamePreferences = GamePreferences.getInstance();
     }
 
     public GameView(Context context){
         super(context);
+    }
 
-        contextActity = context;
+    public OnGameEvent getOnGameEvent() {
+        return onGameEvent;
+    }
+
+    public void setOnGameEvent(OnGameEvent onGameEvent) {
+        this.onGameEvent = onGameEvent;
     }
 
     public void startSolution(){
@@ -65,7 +73,9 @@ public class GameView extends View {
     public void initialize(){
 
         try {
-            game = new TowerOfHanoi(6);
+            int diskAmount = Integer.parseInt(gamePreferences.getDiskAmount());
+
+            game = new TowerOfHanoi(diskAmount);
             game.setX(0);
             game.setY(0);
             game.setWidth(getWidth());
@@ -114,10 +124,14 @@ public class GameView extends View {
                                     canPlay = false;
                                     break;
                                 case NotAllowed:
+                                    if (onGameEvent != null)
+                                        onGameEvent.onNotAllowedMovement();
+                                    /*
                                     Snackbar.make(current,
                                             "Movimento não permitido",
                                             Snackbar.LENGTH_LONG)
                                             .setAction("Action", null).show();
+                                            */
                                     break;
                             }
                         }
@@ -127,8 +141,11 @@ public class GameView extends View {
                 }
             });
         } catch (InvalidStateException ex){
+            if (onGameEvent != null)
+                onGameEvent.onException(ex);
+            /*
             Snackbar.make(this, ex.getMessage(), Snackbar.LENGTH_LONG)
-                    .setAction("Action", null).show();
+                    .setAction("Action", null).show();*/
         }
     }
 
@@ -139,6 +156,7 @@ public class GameView extends View {
         if (!isInitialized){
             initialize();
 
+            movementAmount = 0;
             isInitialized = true;
         }
 
@@ -156,10 +174,10 @@ public class GameView extends View {
                 while (isRunning){
                     try {
                         //
-                        final int diskIncrement = 51;
-                        //final int diskIncrement = 17;
+                        final int diskIncrement = 51; //17
 
                         if (diskToFadeOut != null){
+
                             int alpha = diskToFadeOut.getAlpha();
                             diskToFadeOut.setAlpha(alpha - diskIncrement);
 
@@ -181,9 +199,12 @@ public class GameView extends View {
                                 if (game.getAmountOfDisks() ==
                                         game.getThirdRod().getDiskCount()){
 
+                                    if (onGameEvent != null)
+                                        onGameEvent.onFinish();
+                                    /*
                                     Snackbar.make(current, "Você venceu!!!", Snackbar.LENGTH_LONG)
                                             .setAction("Action", null).show();
-
+                                    */
                                     isInitialized = false;
                                     solution = null;
                                 }
@@ -193,6 +214,7 @@ public class GameView extends View {
                                 diskToFadeOut = null;
                                 game.setDisk(null);
                                 game.setDestinationRod(null);
+                                movementAmount = 0;
 
                                 Log.i("Log", "acabou o fade in");
 
@@ -208,11 +230,14 @@ public class GameView extends View {
                                 }
                             } else {
                                 diskToFadeIn.setAlpha(alpha + diskIncrement);
+                                movementAmount++;
                             }
                         }
 
                         publishProgress();
-                        Thread.sleep(10);
+
+                        int speedMovement = Integer.parseInt(gamePreferences.getSpeedMovement());
+                        Thread.sleep(speedMovement);
                     }
                     catch (Exception ex){
                         ex.printStackTrace();
@@ -224,6 +249,9 @@ public class GameView extends View {
             @Override
             protected void onProgressUpdate(Void... values) {
                 super.onProgressUpdate(values);
+
+                if (movementAmount > 0 && onGameEvent != null)
+                    onGameEvent.onStart();
 
                 invalidate();
             }

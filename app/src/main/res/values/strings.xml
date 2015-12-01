@@ -5,6 +5,28 @@
     <string name="undo">Desfazer</string>
     <string name="solve">Solucionar</string>
     <string name="title_activity_settings">Settings</string>
+    <string name="pref_title_user">Jogo e usuário</string>
+    <string name="pref_disks_amount">Quantidade de Discos</string>
+    <string name="pref_player_name">Nome do Jogador</string>
+    <string name="pref_default_player_name">SEM NOME</string>
+    <string name="pref_speed_effect">Velocidade do efeito</string>
+    <string-array name="pref_list_speed_effect_values">
+        <item>100</item>
+        <item>10</item>
+    </string-array>
+    <string-array name="pref_list_speed_effect_titles">
+        <item>Normal</item>
+        <item>Rápido</item>
+    </string-array>
+    <string-array name="pref_list_disks_amount">
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+    </string-array>
+    <string name="msg_start_auto_resolution">Iniciar auto-resolução do jogo</string>
+    <string name="msg_wrong_movement">Movimento não permitido</string>
+    <string name="msg_you_won">Você venceu!!!</string>
 
     <!-- Strings related to Settings -->
 
