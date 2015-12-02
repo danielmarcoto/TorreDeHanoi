@@ -28,7 +28,10 @@
     <string name="msg_start_auto_resolution">Iniciar auto-resolução do jogo</string>
     <string name="msg_wrong_movement">Movimento não permitido</string>
     <string name="msg_impossible_undo">Não é possível desfazer</string>
+    <string name="msg_cannot_autosolve">Jogo iniciado, não é possível solucionar</string>
     <string name="msg_you_won">Você venceu!!!</string>
+    <string name="ongoing">Em andamento</string>
+    <string name="victory">Vitória</string>
 
     <!-- Strings related to Settings -->
 

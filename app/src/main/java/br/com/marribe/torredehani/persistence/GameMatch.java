@@ -9,6 +9,24 @@ public class GameMatch {
     private int disksAmount;
     private int movementAmount;
     private boolean isFinished;
+    private long date;
+    private long id;
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public long getDate() {
+        return date;
+    }
+
+    public void setDate(long date) {
+        this.date = date;
+    }
 
     public void setPlayerName(String playerName) {
         this.playerName = playerName;

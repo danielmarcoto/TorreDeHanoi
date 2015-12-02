@@ -5,6 +5,9 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.util.Log;
 
+import java.util.HashMap;
+import java.util.List;
+
 /**
  * Created by danielmarcoto on 20/10/15.
  */
@@ -27,6 +30,8 @@ public class TowerOfHanoi extends GameObject {
     private int amountOfDisks;
     private int amountOfMovements;
 
+    private boolean hasStarted;
+
     public TowerOfHanoi(int amountOfDisks) throws InvalidStateException{
         this.amountOfDisks = amountOfDisks;
         this.selectedRod = null;
@@ -36,6 +41,10 @@ public class TowerOfHanoi extends GameObject {
         if (amountOfDisks < 2 || amountOfDisks > 6){
             throw new InvalidStateException("O total de discos deve ser entre 3 e 6");
         }
+    }
+
+    public boolean isHasStarted() {
+        return hasStarted;
     }
 
     public int getAmountOfMovements() {
@@ -149,15 +158,6 @@ public class TowerOfHanoi extends GameObject {
         }
     }
 
-    public void runDisksMovements(DiskMovement[] diskMovements){
-        for (DiskMovement movement : diskMovements) {
-            selectDestinationRod(movement.getCurrent());
-            selectDestinationRod(movement.getDestination());
-            moveDisk(movement.getDisk(), movement.getDestination());
-        }
-        Log.i("Log", "Carrega um estado inicial para os discos");
-    }
-
     @Override
     public void draw(Canvas canvas) {
 
@@ -204,14 +204,9 @@ public class TowerOfHanoi extends GameObject {
         Disk disk = selectedRod.pop();
 
         if (destinationRod.isDiskAccepted(disk)){
-            /*DiskMovement diskMovement = new DiskMovement();
-            diskMovement.setCurrent(selectedRod);
-            diskMovement.setDestination(destinationRod);
-            diskMovement.setDisk(disk);
-            diskMovements.push(diskMovement);*/
 
             destinationRod.push(disk);
-            //this.selectedRod = null;
+
             this.destinationRod = destinationRod;
             this.disk = disk;
 
@@ -232,9 +227,26 @@ public class TowerOfHanoi extends GameObject {
         amountOfMovements++;
 
         this.selectedRod = null;
+        this.hasStarted = true;
 
         disk.setX(newX);
         disk.setY(newY);
+    }
+
+    public void setGameState(List<int[]> diskMovements){
+        for (int i = 0; i < diskMovements.size(); i++) {
+            int[] items = diskMovements.get(i);
+
+            Rod rodCurrent = getRodByNumber(items[1]);
+            Rod rodDestination = getRodByNumber(items[2]);
+
+            HashMap<Integer, Disk> disks = rodCurrent.getDisks();
+            Disk disk = disks.get(items[0]);
+
+            selectDestinationRod(rodCurrent);
+            selectDestinationRod(rodDestination);
+            moveDisk(disk, rodDestination);
+        }
     }
 
     public Rod getDestinationRod() {
@@ -244,12 +256,6 @@ public class TowerOfHanoi extends GameObject {
     public Disk getDisk() {
         return disk;
     }
-    /*
-    public DiskMovement getLastMovement(){
-        if (diskMovements.size() == 0) return null;
-
-        return diskMovements.pop();
-    }*/
 
     public enum MovementState {
         Nothing,

@@ -10,6 +10,6 @@ public interface OnGameEvent {
     void onFinish();
     void onInitialize();
     void onNotAllowedMovement();
-    void onDiskMoves(DiskMovement diskMovement);
+    void onDiskMoves(DiskMovement diskMovement, boolean isUndo);
     void onException(Exception ex);
 }

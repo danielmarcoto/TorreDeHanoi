@@ -11,6 +11,7 @@ import android.view.View;
 import java.util.List;
 import java.util.Stack;
 
+import br.com.marribe.torredehani.interfaces.GameAutomation;
 import br.com.marribe.torredehani.interfaces.OnGameEvent;
 
 /**
@@ -20,7 +21,7 @@ public class GameView extends View {
 
     private Stack<DiskMovement> diskMovements;
     private TowerOfHanoi game;
-    private GameAutosolve solution;
+    private GameAutomation gameAutomation;
     private GamePreferences gamePreferences;
     private OnGameEvent onGameEvent;
 
@@ -33,16 +34,20 @@ public class GameView extends View {
     private Disk diskToFadeIn;
     private Disk diskToFadeOut;
     private Rod rodDestination;
+    private DiskMovement lastDiskMovement;
 
     private boolean canPlay;
     private boolean canNotifyGameInit;
     private boolean canNotifyGameFinished;
+    private boolean canNotifyDiskMove;
+    private boolean isUndo;
 
     public GameView(Context context, AttributeSet attributeSet){
         super(context, attributeSet);
 
         isInitialized = false;
         gamePreferences = GamePreferences.getInstance();
+        diskMovements = new Stack<>();
     }
 
     public GameView(Context context){
@@ -58,7 +63,7 @@ public class GameView extends View {
     }
 
     public boolean isAutoSolutionRunning(){
-        return solution != null;
+        return gameAutomation != null;
     }
 
     public void setOnGameEvent(OnGameEvent onGameEvent) {
@@ -69,14 +74,17 @@ public class GameView extends View {
         // TODO: Fazer meio de reproduzir um jogo já registado no banco de dados
     }
 
-    public void startSolution(){
+    public void startSolution(GameAutomation gameAutomation){
         canPlay = false;
+        this.gameAutomation = gameAutomation;
+        this.gameAutomation.initialize();
 
-        solution = new GameAutosolve(game);
-        solution.initialize();
+        if (game.getSelectedRod() != null){
+            game.selectDestinationRod(game.getSelectedRod());
+        }
 
         // Primeiro movimento
-        DiskMovement movement = solution.getNextDiskMovement();
+        DiskMovement movement = this.gameAutomation.getNextDiskMovement();
         game.selectDestinationRod(movement.getCurrent());
         game.selectDestinationRod(movement.getDestination());
 
@@ -117,7 +125,8 @@ public class GameView extends View {
 
                         if (isInitialized) {
 
-                            TowerOfHanoi.MovementState movementState = TowerOfHanoi.MovementState.Nothing;
+                            TowerOfHanoi.MovementState movementState =
+                                    TowerOfHanoi.MovementState.Nothing;
 
                             if (game.getFirstRod().intercept(xTouch, yTouch)) {
                                 movementState = game.selectDestinationRod(game.getFirstRod());
@@ -136,15 +145,13 @@ public class GameView extends View {
                             switch (movementState){
                                 case Ok:
 
-                                    if (onGameEvent != null){
-                                        DiskMovement diskMovement = new DiskMovement();
-                                        diskMovement.setDestination(game.getDestinationRod());
-                                        diskMovement.setDisk(game.getDisk());
-                                        diskMovement.setCurrent(game.getSelectedRod());
-                                        diskMovements.push(diskMovement);
+                                    DiskMovement diskMovement = new DiskMovement();
+                                    diskMovement.setDestination(game.getDestinationRod());
+                                    diskMovement.setDisk(game.getDisk());
+                                    diskMovement.setCurrent(game.getSelectedRod());
+                                    diskMovements.push(diskMovement);
 
-                                        onGameEvent.onDiskMoves(diskMovement);
-                                    }
+                                    lastDiskMovement = diskMovement;
 
                                     diskToFadeOut = game.getDisk();
                                     rodDestination = game.getDestinationRod();
@@ -218,31 +225,35 @@ public class GameView extends View {
                             if (alpha == 255) {
 
                                 // Detecta quando o jogo acabou, jogador venceu
+
                                 if (game.getAmountOfDisks() ==
                                         game.getThirdRod().getDiskCount()){
 
                                     canNotifyGameFinished = true;
                                     isInitialized = false;
-                                    solution = null;
+                                    gameAutomation = null;
                                 }
 
                                 canPlay = true;
                                 diskToFadeIn = null;
                                 diskToFadeOut = null;
+                                canNotifyDiskMove = true;
                                 game.setDisk(null);
                                 game.setDestinationRod(null);
 
                                 Log.i("Log", "acabou o fade in");
 
-                                // Detecta se há auto-solução em andamento
-                                if (solution != null) {
-                                    DiskMovement movement = solution.getNextDiskMovement();
-                                    game.selectDestinationRod(movement.getCurrent());
-                                    game.selectDestinationRod(movement.getDestination());
+                                // Detecta se há automação em andamento
+                                if (gameAutomation != null) {
+                                    DiskMovement movement = gameAutomation.getNextDiskMovement();
 
-                                    diskToFadeOut = game.getDisk();
-                                    rodDestination = game.getDestinationRod();
+                                    if (movement != null) {
+                                        game.selectDestinationRod(movement.getCurrent());
+                                        game.selectDestinationRod(movement.getDestination());
 
+                                        diskToFadeOut = game.getDisk();
+                                        rodDestination = game.getDestinationRod();
+                                    }
                                 }
                             } else {
                                 diskToFadeIn.setAlpha(alpha + diskIncrement);
@@ -270,6 +281,13 @@ public class GameView extends View {
                     onGameEvent.onStart();
                 }
 
+                if (canNotifyDiskMove && onGameEvent != null){
+                    canNotifyDiskMove = false;
+                    onGameEvent.onDiskMoves(lastDiskMovement, isUndo);
+                    lastDiskMovement = null;
+                    isUndo = false;
+                }
+
                 if (canNotifyGameFinished && onGameEvent != null){
                     canNotifyGameFinished = false;
                     onGameEvent.onFinish();
@@ -290,12 +308,20 @@ public class GameView extends View {
 
         DiskMovement diskMovement = diskMovements.pop();
 
+        if (game.getSelectedRod() != null){
+            game.selectDestinationRod(game.getSelectedRod());
+        }
+
+        isUndo = true;
+
         // Realiza o movimento invertendo a origem e o destino
         game.selectDestinationRod(diskMovement.getDestination());
         game.selectDestinationRod(diskMovement.getCurrent());
 
         diskToFadeOut = game.getDisk();
         rodDestination = game.getDestinationRod();
+
+        this.lastDiskMovement = diskMovement;
         return true;
     }
 }
